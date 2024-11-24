@@ -1,0 +1,103 @@
+     1                                  global	main
+     2                                  extern	printf, puts
+     3                                  
+     4                                  section	.data
+     5 00000000 80804C4E468080          	matriz		db	80h,80h,4Ch,4Eh,46h,80h,80h
+     6 00000007 80804C4E468080          			db	80h,80h,4Ch,4Eh,46h,80h,80h
+     7 0000000E 4C4C4C4E464646          			db	4Ch,4Ch,4Ch,4Eh,46h,46h,46h
+     8 00000015 4C4C4C4E464646          			db      4Ch,4Ch,4Ch,4Eh,46h,46h,46h
+     9 0000001C 50500000004141          			db      50h,50h,00h,00h,00h,41h,41h ;cambiar
+    10 00000023 80800000008080                                  db      80h,80h,00h,00h,00h,80h,80h ;cambiar
+    11 0000002A 80800000008080                                  db      80h,80h,00h,00h,00h,80h,80h
+    12                                  
+    13 00000031 00                      	posx		db	00h
+    14                                  
+    15 00000032 20202000                	msgCI           db      '   ', 0
+    16 00000036 7C787C00                        msgCS           db      '|x|', 0
+    17 0000003A 7C6F7C00                        msgCO           db      '|o|', 0
+    18 0000003E 7C207C00                        msgCD           db      '| |', 0
+    19 00000042 0A0D00                          msgSL           db      '',10,13,0
+    20 00000045 0A0D2D2D2D2D2D2D2D-             msgDiv          db      10,13,'----------------------',10,13,0
+    20 0000004E 2D2D2D2D2D2D2D2D2D-
+    20 00000057 2D2D2D2D2D2D0A0D00 
+    21                                  
+    22                                  section	.text
+    23                                  main:
+    24 00000000 4829C0                  	sub	rax,rax
+    25 00000003 4829DB                  	sub	rbx,rbx
+    26 00000006 4829F6                  	sub	rsi,rsi
+    27                                  ciclo:
+    28 00000009 80FB31                  	cmp	bl, 31h ; si es igual a 49
+    29 0000000C 745F                    	je	fin
+    30                                  
+    31 0000000E 8A83[00000000]          	mov	al,[matriz+rbx]
+    32 00000014 2480                    	and	al,10000000b ; si la casilla es invalida
+    33 00000016 3C80                    	cmp	al,10000000b
+    34 00000018 7478                    	je	printCI
+    35                                  
+    36 0000001A 8A83[00000000]          	mov	al,[matriz+rbx]
+    37 00000020 2440                    	and	al,01000000b ; si tiene un soldado
+    38 00000022 3C40                    	cmp	al,01000000b
+    39 00000024 0F8481000000            	je	printSol
+    40                                  
+    41 0000002A 8A83[00000000]          	mov	al,[matriz+rbx]
+    42 00000030 2420                    	and	al,00100000b ; si tiene un oficial
+    43 00000032 3C20                    	cmp	al,00100000b
+    44 00000034 0F848A000000            	je	printOfi
+    45                                  
+    46 0000003A 48BF-                   	mov     rdi, msgCD
+    46 0000003C [3E00000000000000] 
+    47 00000044 408AB3[00000000]                mov     sil,[matriz+rbx]
+    48 0000004B 4883EC08                        sub     rsp, 8
+    49 0000004F E8(00000000)                    call    printf
+    50 00000054 4883C408                        add     rsp, 8
+    51                                  
+    52                                  avanza:
+    53 00000058 FEC3                    	inc	bl
+    54                                  
+    55 0000005A FE0425[31000000]        	inc	byte[posx]
+    56 00000061 803C25[31000000]07      	cmp	byte[posx],07h
+    57 00000069 7403                    	je	saltoDeLinea
+    58                                  
+    59 0000006B EB9C                    	jmp	ciclo
+    60                                  fin:
+    61 0000006D C3                      	ret
+    62                                  
+    63                                  saltoDeLinea:
+    64 0000006E C60425[31000000]00      	mov	byte[posx],00h
+    65                                  
+    66 00000076 48BF-                   	mov	rdi, msgDiv
+    66 00000078 [4500000000000000] 
+    67 00000080 4883EC08                	sub	rsp, 8
+    68 00000084 E8(00000000)            	call	puts
+    69 00000089 4883C408                	add	rsp, 8
+    70 0000008D E977FFFFFF              	jmp	ciclo
+    71                                  
+    72                                  
+    73                                  printCI:
+    74 00000092 48BF-                   	mov	rdi, msgCI
+    74 00000094 [3200000000000000] 
+    75 0000009C 4883EC08                	sub	rsp, 8
+    76 000000A0 E8(00000000)            	call	printf
+    77 000000A5 4883C408                	add	rsp, 8
+    78                                  
+    79 000000A9 EBAD                    	jmp	avanza
+    80                                  printSol:
+    81 000000AB 48BF-                   	mov     rdi, msgCS
+    81 000000AD [3600000000000000] 
+    82 000000B5 4883EC08                        sub     rsp, 8
+    83 000000B9 E8(00000000)                    call    printf
+    84 000000BE 4883C408                        add     rsp, 8
+    85                                  
+    86 000000C2 EB94                            jmp     avanza
+    87                                  
+    88                                  
+    89                                  printOfi:
+    90 000000C4 48BF-                   	mov     rdi, msgCO
+    90 000000C6 [3A00000000000000] 
+    91 000000CE 4883EC08                        sub     rsp, 8
+    92 000000D2 E8(00000000)                    call    printf
+    93 000000D7 4883C408                        add     rsp, 8
+    94                                  
+    95 000000DB E978FFFFFF                      jmp     avanza
+    96                                  
