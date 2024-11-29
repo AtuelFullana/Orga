@@ -266,7 +266,93 @@ finValidacion:
 
 %endmacro
 
+%macro personalizar 0
+    mPuts msgSimboloOficial
+    mGets simboloOficial
+
+    mPuts msgSimboloSoldado
+    mGets simboloSoldado
+
+    mPuts msgOrientacion
+    mGets direccion
+    mSscanf direccion, mFormat, orientacion
+    cmp byte [orientacion], 3
+    jbe valido
+    mov byte [orientacion], 0
+valido:
+%endmacro
+
+%macro reemplazarSimbolos 1
+    mov rcx, [longitud]
+    mov rbx, [tamanio]
+cicloReemplazo:
+    mov al, [%1 + rbx]
+    and al, 01000000b
+    cmp al, 01000000b
+    jne oficial
+
+    mov al, [simboloSoldado]
+    mov [%1 + rbx], al
+    jmp siguiente
+
+oficial:
+    mov al, [%1 + rbx]
+    and al, 00100000b
+    cmp al, 00100000b
+    jne siguiente
+
+    mov al, [simboloOficial]
+    mov [%1 + rbx], al
+
+siguiente:
+    dec rbx
+    loop cicloReemplazo
+%endmacro
+
+%macro rotarMatriz 2
+    cmp byte [orientacion], 0
+    je finRotar
+
+    cmp byte [orientacion], 1
+    je rotar90
+
+    cmp byte [orientacion], 2
+    je rotar180
+
+    cmp byte [orientacion], 3
+    je rotar270
+
+rotar90:
+
+    call transponerMatriz
+    call invertirColumnas
+    jmp finRotar
+
+rotar180:
+
+    call invertirFilas
+    call invertirColumnas
+    jmp finRotar
+
+rotar270:
+
+    call transponerMatriz
+    call invertirFilas
+    jmp finRotar
+
+finRotar:
+%endmacro
+
 section		.data
+
+         simboloOficial   db 'O', 0
+        simboloSoldado   db 'S', 0
+        orientacion      db 0
+    
+        msgSimboloOficial db "Ingrese el ssmbolo para los oficiales: ", 0
+        msgSimboloSoldado db "Ingrese el simbolo para los soldados: ", 0
+        msgOrientacion    db "Ingrese la orientación del tablero (0: normal, 1: 90°, 2: 180°, 3: 270°): ", 0
+
 	msgx            db      "Ingrese posicion en x", 0
         msgy            db      "Ingrese posicion en y", 0
         msgError        db      "Posicion invalida",10,13,0

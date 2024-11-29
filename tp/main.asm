@@ -24,6 +24,9 @@ section	.bss
 
 section	.text
 main:
+	personalizar
+    rotarMatriz matriz
+    reemplazarSimbolos matriz
         printMatriz     matriz, [tamanio], [longitud]
 	ganaronSoldados	matriz
 	cmp	al,09h
